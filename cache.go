@@ -53,7 +53,8 @@ func (c *Cache) getCurrentCache(path string) {
 	content, err := ioutil.ReadAll(file)
 
 	if err := json.Unmarshal(content, &c); err != nil {
-		log.Fatal("Impossible de transformer le cache en structure")
+		log.Println("Impossible de transformer le cache en structure")
+		log.Println("Réinitialisation du cache")
 	}
 
 	_ = file.Close()
@@ -116,7 +117,6 @@ func (c *Cache) updateYoutubeDatas(client http.Client, channelId string, isMain 
 	if resp.StatusCode != http.StatusOK {
 		log.Fatalf("API status %v", resp.StatusCode)
 	}
-
 
 	body, _ := ioutil.ReadAll(resp.Body)
 

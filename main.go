@@ -38,9 +38,9 @@ func provideDatas(w http.ResponseWriter, r *http.Request) {
 		cache.getCurrentCache(cache.absPath)
 	}
 
-	res, _ := json.Marshal(cache)
+	// res, _ := json.Marshal(cache)
 
-	log.Println(string(res))
+	// log.Println(string(res))
 
 	client := http.Client{}
 
