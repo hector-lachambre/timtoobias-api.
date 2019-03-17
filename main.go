@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -26,8 +25,6 @@ func provideDatas(w http.ResponseWriter, r *http.Request) {
 
 	absPath, err := filepath.Abs(path)
 
-	_, _ = fmt.Println(absPath)
-
 	if err != nil {
 		log.Fatal("Erreur à la lecture du chemin")
 	}
@@ -44,18 +41,27 @@ func provideDatas(w http.ResponseWriter, r *http.Request) {
 
 	client := http.Client{}
 
+	updated := false
+
 	if time.Since(cache.StreamContainer.DateSync).Seconds() > 30 {
 
 		cache.updateStreamDatas(client)
+
+		updated = true
 	}
 
 	if time.Since(cache.VideosContainer.DateSync).Seconds() > 60*2 {
 
 		cache.updateYoutubeDatas(client, YT_HuzId_main, true)
 		cache.updateYoutubeDatas(client, YT_HuzId_second, false)
+
+		updated = true
 	}
 
-	cache.save()
+	if updated {
+
+		cache.save()
+	}
 
 	test, _ := json.Marshal(cache)
 
