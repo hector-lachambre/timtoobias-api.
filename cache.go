@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -19,6 +18,7 @@ type Stream struct {
 	Title string    `json:"title"`
 	Date  time.Time `json:"date"`
 }
+
 type StreamContainer struct {
 	Stream   *Stream   `json:"datas"`
 	DateSync time.Time `json:"dateSync"`
@@ -28,6 +28,7 @@ type Videos struct {
 	Main   Video `json:"main"`
 	Second Video `json:"second"`
 }
+
 type Video struct {
 	Id          string    `json:"id"`
 	Title       string    `json:"title"`
@@ -42,25 +43,9 @@ type Cache struct {
 	absPath         string
 }
 
-func (c *Cache) getCurrentCache(path string) {
-
-	file, err := os.Open(path)
-
-	if err != nil {
-		log.Fatalf("Impossible d'ouvrir le cache à partir de \"%s\"", path)
-	}
-
-	content, err := ioutil.ReadAll(file)
-
-	if err := json.Unmarshal(content, &c); err != nil {
-		log.Fatal("Impossible de transformer le cache en structure")
-	}
-
-	_ = file.Close()
-
-}
-
 func (c *Cache) updateStreamDatas(client http.Client) {
+
+	log.Println("Actualisation des données Twitch en cours...")
 
 	req, err := http.NewRequest("GET", "https://api.twitch.tv/helix/streams?user_id="+Twitch_HuzId, nil)
 
@@ -73,7 +58,10 @@ func (c *Cache) updateStreamDatas(client http.Client) {
 	resp, err := client.Do(req)
 
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("API status %v", resp.StatusCode)
+
+		log.Println("API status %v, echec de la mise à jour des données", resp.StatusCode)
+
+		return
 	}
 
 	structuredResponse := model.TwitchResponseContainer{}
@@ -93,9 +81,13 @@ func (c *Cache) updateStreamDatas(client http.Client) {
 	}
 
 	c.StreamContainer.DateSync = time.Now()
+
+	log.Println("Les données Twitch ont été mise à jour")
 }
 
 func (c *Cache) updateYoutubeDatas(client http.Client, channelId string, isMain bool) {
+
+	log.Println("Actualisation des données Youtube en cours...")
 
 	req, err := http.NewRequest(
 		"GET",
@@ -114,9 +106,11 @@ func (c *Cache) updateYoutubeDatas(client http.Client, channelId string, isMain 
 	resp, err := client.Do(req)
 
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("API status %v", resp.StatusCode)
-	}
 
+		log.Println("API Youtube status %v, echec de la mise à jour des données", resp.StatusCode)
+
+		return
+	}
 
 	body, _ := ioutil.ReadAll(resp.Body)
 
@@ -143,11 +137,6 @@ func (c *Cache) updateYoutubeDatas(client http.Client, channelId string, isMain 
 	}
 
 	c.VideosContainer.DateSync = time.Now()
-}
 
-func (c *Cache) save() {
-
-	test, _ := json.Marshal(c)
-
-	_ = ioutil.WriteFile(c.absPath, test, 0777)
+	log.Println("Les données Youtube ont été mise à jour")
 }
