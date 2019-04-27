@@ -4,66 +4,52 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"time"
 )
 
 func main() {
 
-	http.HandleFunc("/datas", provideDatas)
+	client := http.Client{}
+
+	cache := &Cache{}
+
+	cache.updateStreamDatas(client)
+	cache.updateYoutubeDatas(client, YT_HuzId_main, true)
+	cache.updateYoutubeDatas(client, YT_HuzId_second, false)
+
+	http.HandleFunc("/datas", cache.provideDatas)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func provideDatas(w http.ResponseWriter, r *http.Request) {
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	cache := &Cache{}
-
-	absPath, err := filepath.Abs(path)
-
-	if err != nil {
-		log.Fatal("Erreur à la lecture du chemin")
-	}
-
-	cache.absPath = absPath
-
-	if _, err := os.Stat(cache.absPath); err == nil {
-		cache.getCurrentCache(cache.absPath)
-	}
-
-	// res, _ := json.Marshal(cache)
-
-	// log.Println(string(res))
+func (cache *Cache) provideDatas(w http.ResponseWriter, r *http.Request) {
 
 	client := http.Client{}
 
-	updated := false
+	w.Header().Set("Content-Type", "application/json")
 
 	if time.Since(cache.StreamContainer.DateSync).Seconds() > 30 {
 
 		cache.updateStreamDatas(client)
-
-		updated = true
 	}
 
 	if time.Since(cache.VideosContainer.DateSync).Seconds() > 60*2 {
 
 		cache.updateYoutubeDatas(client, YT_HuzId_main, true)
 		cache.updateYoutubeDatas(client, YT_HuzId_second, false)
-
-		updated = true
 	}
 
-	if updated {
+	output, err := json.Marshal(cache)
 
-		cache.save()
+	if err != nil {
+
+		log.Println("Impossible de transformer le cache en JSON")
 	}
 
-	test, _ := json.Marshal(cache)
+	_, err = w.Write(output)
 
-	_, _ = w.Write(test)
+	if err != nil {
+
+		log.Println("Impossible d'écrire la sortie")
+	}
 }
