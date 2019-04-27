@@ -40,10 +40,20 @@ type Video struct {
 type Cache struct {
 	StreamContainer StreamContainer `json:"stream"`
 	VideosContainer VideoContainer  `json:"videos"`
-	absPath         string
 }
 
-func (c *Cache) updateStreamDatas(client http.Client) {
+type Config struct {
+	Mode       string
+	YoutubeKey string
+	TwitchKey  string
+}
+
+type Application struct {
+	Cache  *Cache
+	Config *Config
+}
+
+func (a *Application) updateStreamDatas(client http.Client) {
 
 	log.Println("Actualisation des données Twitch en cours...")
 
@@ -53,7 +63,7 @@ func (c *Cache) updateStreamDatas(client http.Client) {
 		log.Fatal("La requête à l'API distante à échouée")
 	}
 
-	req.Header.Add("Client-ID", Twitch_key)
+	req.Header.Add("Client-ID", a.Config.TwitchKey)
 
 	resp, err := client.Do(req)
 
@@ -72,27 +82,27 @@ func (c *Cache) updateStreamDatas(client http.Client) {
 
 	if len(structuredResponse.Datas) != 0 {
 
-		c.StreamContainer.Stream = &Stream{
+		a.Cache.StreamContainer.Stream = &Stream{
 			Title: structuredResponse.Datas[0].Title,
 			Date:  structuredResponse.Datas[0].StartedAt,
 		}
 	} else {
-		c.StreamContainer.Stream = nil
+		a.Cache.StreamContainer.Stream = nil
 	}
 
-	c.StreamContainer.DateSync = time.Now()
+	a.Cache.StreamContainer.DateSync = time.Now()
 
 	log.Println("Les données Twitch ont été mise à jour")
 }
 
-func (c *Cache) updateYoutubeDatas(client http.Client, channelId string, isMain bool) {
+func (a *Application) updateYoutubeDatas(client http.Client, channelId string, isMain bool) {
 
 	log.Println("Actualisation des données Youtube en cours...")
 
 	req, err := http.NewRequest(
 		"GET",
 		"https://www.googleapis.com/youtube/v3/search?key="+
-			YT_key+
+			a.Config.YoutubeKey+
 			"&channelId="+
 			channelId+
 			"&part=snippet,id&order=date&maxResults=1",
@@ -118,8 +128,8 @@ func (c *Cache) updateYoutubeDatas(client http.Client, channelId string, isMain 
 
 	_ = json.Unmarshal(body, &structuredResponse)
 
-	if c.VideosContainer.Videos == nil {
-		c.VideosContainer.Videos = &Videos{}
+	if a.Cache.VideosContainer.Videos == nil {
+		a.Cache.VideosContainer.Videos = &Videos{}
 	}
 
 	video := Video{
@@ -131,12 +141,12 @@ func (c *Cache) updateYoutubeDatas(client http.Client, channelId string, isMain 
 	}
 
 	if isMain {
-		c.VideosContainer.Videos.Main = video
+		a.Cache.VideosContainer.Videos.Main = video
 	} else {
-		c.VideosContainer.Videos.Second = video
+		a.Cache.VideosContainer.Videos.Second = video
 	}
 
-	c.VideosContainer.DateSync = time.Now()
+	a.Cache.VideosContainer.DateSync = time.Now()
 
 	log.Println("Les données Youtube ont été mise à jour")
 }
