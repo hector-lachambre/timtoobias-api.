@@ -39,7 +39,17 @@ func (cache *Cache) provideDatas(w http.ResponseWriter, r *http.Request) {
 		cache.updateYoutubeDatas(client, YT_HuzId_second, false)
 	}
 
-	test, _ := json.Marshal(cache)
+	output, err := json.Marshal(cache)
 
-	_, _ = w.Write(test)
+	if err != nil {
+
+		log.Println("Impossible de transformer le cache en JSON")
+	}
+
+	_, err = w.Write(output)
+
+	if err != nil {
+
+		log.Println("Impossible d'écrire la sortie")
+	}
 }
