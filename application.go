@@ -59,12 +59,6 @@ type Cache struct {
 	VideosContainer VideoContainer  `json:"videos"`
 }
 
-type Config struct {
-	Mode       string
-	YoutubeKey string
-	TwitchKey  string
-}
-
 type Application struct {
 	Cache  *Cache
 	Config *Config
@@ -86,7 +80,7 @@ func (a *Application) updateStreamDatas(client http.Client) {
 
 	if resp.StatusCode != http.StatusOK {
 
-		log.Println("API status %v, echec de la mise à jour des données", resp.StatusCode)
+		log.Printf("API status %v, echec de la mise à jour des données", resp.StatusCode)
 
 		return
 	}
@@ -134,7 +128,7 @@ func (a *Application) updateYoutubeDatas(client http.Client, channelId string, i
 
 	if resp.StatusCode != http.StatusOK {
 
-		log.Println("API Youtube status %v, echec de la mise à jour des données", resp.StatusCode)
+		log.Printf("API Youtube status %v, echec de la mise à jour des données", resp.StatusCode)
 
 		return
 	}
@@ -166,4 +160,36 @@ func (a *Application) updateYoutubeDatas(client http.Client, channelId string, i
 	a.Cache.VideosContainer.DateSync = time.Now()
 
 	log.Println("Les données Youtube ont été mise à jour")
+}
+
+func (a *Application) provideDatas(w http.ResponseWriter, r *http.Request) {
+
+	client := http.Client{}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	if time.Since(a.Cache.StreamContainer.DateSync).Seconds() > 30 {
+
+		a.updateStreamDatas(client)
+	}
+
+	if time.Since(a.Cache.VideosContainer.DateSync).Seconds() > 60*2 {
+
+		a.updateYoutubeDatas(client, YT_HuzId_main, true)
+		a.updateYoutubeDatas(client, YT_HuzId_second, false)
+	}
+
+	output, err := json.Marshal(a.Cache)
+
+	if err != nil {
+
+		log.Println("Impossible de transformer le cache en JSON")
+	}
+
+	_, err = w.Write(output)
+
+	if err != nil {
+
+		log.Println("Impossible d'écrire la sortie")
+	}
 }
