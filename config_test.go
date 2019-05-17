@@ -1,13 +1,18 @@
 package main
 
 import (
+	"log"
 	"reflect"
 	"testing"
 )
 
-func TestReadConfigFakeFile(t *testing.T) {
+func TestReadConfigWrongFile(t *testing.T) {
 
-	config, err := readConfig("config-fake.ini")
+	config, err := readConfig("test/right_config.ini")
+
+	log.Println(reflect.TypeOf(err))
+
+	log.Println(reflect.TypeOf(&ConfigurationError{}))
 
 	if reflect.TypeOf(err) != reflect.TypeOf(&ConfigurationError{}) {
 		t.Errorf("Wrong error type, ConfigurationError wanted, got %v", reflect.TypeOf(err))
@@ -15,18 +20,5 @@ func TestReadConfigFakeFile(t *testing.T) {
 
 	if config != nil {
 		t.Errorf("Configuration must be nil if error occur, got %v", config)
-	}
-}
-
-func TestReadConfigRightFile(t *testing.T) {
-
-	config, err := readConfig("config.ini")
-
-	if err != nil {
-		t.Errorf("Wrong error type, ConfigurationError wanted, got %v", reflect.TypeOf(err))
-	}
-
-	if reflect.TypeOf(config) != reflect.TypeOf(&Config{}) {
-		t.Errorf("Wrong error type, ConfigurationError wanted, got %v", reflect.TypeOf(err))
 	}
 }

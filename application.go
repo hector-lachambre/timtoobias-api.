@@ -19,7 +19,6 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/hector-lachambre/huzlive-api/model"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -85,7 +84,7 @@ func (a *Application) updateStreamDatas(client http.Client) {
 		return
 	}
 
-	structuredResponse := model.TwitchResponseContainer{}
+	structuredResponse := TwitchResponseContainer{}
 
 	body, _ := ioutil.ReadAll(resp.Body)
 
@@ -135,7 +134,7 @@ func (a *Application) updateYoutubeDatas(client http.Client, channelId string, i
 
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	var structuredResponse *model.YoutubeResponseContainer
+	var structuredResponse *YoutubeResponseContainer
 
 	_ = json.Unmarshal(body, &structuredResponse)
 
