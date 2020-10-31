@@ -19,11 +19,13 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/hector-lachambre/huzlive-api/model"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/hector-lachambre/huzlive-api/model"
 )
 
 type VideoContainer struct {
@@ -60,9 +62,10 @@ type Cache struct {
 }
 
 type Config struct {
-	Mode       string
-	YoutubeKey string
-	TwitchKey  string
+	Mode         string
+	YoutubeKey   string
+	TwitchClient string
+	TwitchSecret string
 }
 
 type Application struct {
@@ -74,15 +77,39 @@ func (a *Application) updateStreamDatas(client http.Client) {
 
 	log.Println("Actualisation des données Twitch en cours...")
 
-	req, err := http.NewRequest("GET", "https://api.twitch.tv/helix/streams?user_id="+Twitch_HuzId, nil)
+	req, err := http.NewRequest(
+		"POST",
+		fmt.Sprintf(
+			"https://id.twitch.tv/oauth2/token?client_id=%v&client_secret=%v&grant_type=client_credentials",
+			a.Config.TwitchClient,
+			a.Config.TwitchSecret,
+		),
+		nil,
+	)
 
 	if err != nil {
 		log.Fatal("La requête à l'API distante à échouée")
 	}
 
-	req.Header.Add("Client-ID", a.Config.TwitchKey)
-
 	resp, err := client.Do(req)
+
+	var data map[string]interface{}
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	err = json.Unmarshal(body, &data)
+
+	bearer := data["access_token"]
+
+	req, err = http.NewRequest("GET", "https://api.twitch.tv/helix/streams?user_id="+Twitch_HuzId, nil)
+
+	if err != nil {
+		log.Fatal("La requête à l'API distante à échouée")
+	}
+
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", bearer))
+	req.Header.Add("Client-ID", a.Config.TwitchClient)
+
+	resp, err = client.Do(req)
 
 	if resp.StatusCode != http.StatusOK {
 
@@ -93,7 +120,7 @@ func (a *Application) updateStreamDatas(client http.Client) {
 
 	structuredResponse := model.TwitchResponseContainer{}
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ = ioutil.ReadAll(resp.Body)
 
 	_ = json.Unmarshal(body, &structuredResponse)
 

@@ -1,0 +1,4 @@
+github.com/hector-lachambre/huzlive-api v0.0.0-20190513165312-d61e19745524 h1:rX2ZXmJsn45VO2zCwUHRPn1dY4y7J7TlGUzLU7Acn1o=
+github.com/hector-lachambre/huzlive-api v0.0.0-20190513165312-d61e19745524/go.mod h1:YH7PdX1pxpYLw5Gpmj0FteuzDSOmyMzSg5sB4MTqVE4=
+gopkg.in/ini.v1 v1.62.0 h1:duBzk771uxoUuOlyRLkHsygud9+5lrlGjdFBb4mSKDU=
+gopkg.in/ini.v1 v1.62.0/go.mod h1:pNLf8WUiyNEtQjuu5G5vTm06TEv9tsIgeAvK8hOrP4k=

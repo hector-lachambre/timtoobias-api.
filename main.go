@@ -51,9 +51,10 @@ func main() {
 	application := &Application{
 		Cache: &Cache{},
 		Config: &Config{
-			Mode:       cfg.Section("GENERAL").Key("Mode").String(),
-			YoutubeKey: cfg.Section("API").Key("YT_key").String(),
-			TwitchKey:  cfg.Section("API").Key("Twitch_key").String(),
+			Mode:         cfg.Section("GENERAL").Key("Mode").String(),
+			YoutubeKey:   cfg.Section("API").Key("YT_key").String(),
+			TwitchClient: cfg.Section("API").Key("Twitch_client").String(),
+			TwitchSecret: cfg.Section("API").Key("Twitch_secret").String(),
 		},
 	}
 
@@ -77,7 +78,7 @@ func (a *Application) provideDatas(w http.ResponseWriter, r *http.Request) {
 		a.updateStreamDatas(client)
 	}
 
-	if time.Since(a.Cache.VideosContainer.DateSync).Seconds() > 60*2 {
+	if time.Since(a.Cache.VideosContainer.DateSync).Seconds() > 30*60 {
 
 		a.updateYoutubeDatas(client, YT_HuzId_main, true)
 		a.updateYoutubeDatas(client, YT_HuzId_second, false)
