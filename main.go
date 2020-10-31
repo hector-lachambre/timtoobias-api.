@@ -27,7 +27,7 @@ func main() {
 
 	client := http.Client{}
 
-	config, err := readConfig("config.ini")
+	config, err := ReadConfig("config.ini")
 
 	if err != nil {
 		log.Fatalln(err.Error())

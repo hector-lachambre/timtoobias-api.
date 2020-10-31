@@ -19,10 +19,11 @@ package main
 
 import (
 	"fmt"
-	"gopkg.in/ini.v1"
 	"os"
 	"path"
 	"path/filepath"
+
+	"gopkg.in/ini.v1"
 )
 
 type Config struct {
@@ -40,7 +41,7 @@ func (e *ConfigurationError) Error() string {
 	return e.Message
 }
 
-func readConfig(filename string) (*Config, error) {
+func ReadConfig(filename string) (*Config, error) {
 
 	rootPath, err := os.Executable()
 

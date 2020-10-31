@@ -8,7 +8,7 @@ import (
 
 func TestReadConfigWrongFile(t *testing.T) {
 
-	config, err := readConfig("test/right_config.ini")
+	config, err := ReadConfig("test/wrong_config.ini")
 
 	log.Println(reflect.TypeOf(err))
 
