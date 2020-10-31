@@ -25,42 +25,49 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/hector-lachambre/huzlive-api/model"
+	"gitlab.com/timtoobias-projects/timtoobias-api/model"
 )
 
+// VideoContainer represents the video part of the api response
 type VideoContainer struct {
 	Videos   *Videos   `json:"datas"`
 	DateSync time.Time `json:"dateSync"`
 }
 
+// Stream represents the stream content of the api response
 type Stream struct {
 	Title string    `json:"title"`
 	Date  time.Time `json:"date"`
 }
 
+// StreamContainer represents the stream part of the api response
 type StreamContainer struct {
 	Stream   *Stream   `json:"datas"`
 	DateSync time.Time `json:"dateSync"`
 }
 
+// Videos represents both channel last Video
 type Videos struct {
 	Main   Video `json:"main"`
 	Second Video `json:"second"`
 }
 
+// Video represents a video in api response
 type Video struct {
-	Id          string    `json:"id"`
+	ID          string    `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Date        time.Time `json:"date"`
 	Thumbnail   string    `json:"thumbnail"`
 }
 
+// Cache represents the root of response
 type Cache struct {
 	StreamContainer StreamContainer `json:"stream"`
 	VideosContainer VideoContainer  `json:"videos"`
 }
 
+// Config datas representation
 type Config struct {
 	Mode         string
 	YoutubeKey   string
@@ -68,6 +75,7 @@ type Config struct {
 	TwitchSecret string
 }
 
+// Application root structure
 type Application struct {
 	Cache  *Cache
 	Config *Config
@@ -100,7 +108,7 @@ func (a *Application) updateStreamDatas(client http.Client) {
 
 	bearer := data["access_token"]
 
-	req, err = http.NewRequest("GET", "https://api.twitch.tv/helix/streams?user_id="+Twitch_HuzId, nil)
+	req, err = http.NewRequest("GET", "https://api.twitch.tv/helix/streams?user_id="+TwitchChannelID, nil)
 
 	if err != nil {
 		log.Fatal("La requête à l'API distante à échouée")
@@ -113,7 +121,7 @@ func (a *Application) updateStreamDatas(client http.Client) {
 
 	if resp.StatusCode != http.StatusOK {
 
-		log.Println("API status %v, echec de la mise à jour des données", resp.StatusCode)
+		log.Printf("API status %v, echec de la mise à jour des données\n", resp.StatusCode)
 
 		return
 	}
@@ -139,7 +147,7 @@ func (a *Application) updateStreamDatas(client http.Client) {
 	log.Println("Les données Twitch ont été mise à jour")
 }
 
-func (a *Application) updateYoutubeDatas(client http.Client, channelId string, isMain bool) {
+func (a *Application) updateYoutubeDatas(client http.Client, channelID string, isMain bool) {
 
 	log.Println("Actualisation des données Youtube en cours...")
 
@@ -148,7 +156,7 @@ func (a *Application) updateYoutubeDatas(client http.Client, channelId string, i
 		"https://www.googleapis.com/youtube/v3/search?key="+
 			a.Config.YoutubeKey+
 			"&channelId="+
-			channelId+
+			channelID+
 			"&part=snippet,id&order=date&maxResults=1",
 		nil,
 	)
@@ -161,7 +169,7 @@ func (a *Application) updateYoutubeDatas(client http.Client, channelId string, i
 
 	if resp.StatusCode != http.StatusOK {
 
-		log.Println("API Youtube status %v, echec de la mise à jour des données", resp.StatusCode)
+		log.Printf("API Youtube status %v, echec de la mise à jour des données\n", resp.StatusCode)
 
 		return
 	}
@@ -177,7 +185,7 @@ func (a *Application) updateYoutubeDatas(client http.Client, channelId string, i
 	}
 
 	video := Video{
-		Id:          structuredResponse.Datas[0].Id.Id,
+		ID:          structuredResponse.Datas[0].Id.Id,
 		Title:       structuredResponse.Datas[0].Snippet.Title,
 		Description: structuredResponse.Datas[0].Snippet.Description,
 		Date:        structuredResponse.Datas[0].Snippet.PublishedAt,

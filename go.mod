@@ -1,8 +1,8 @@
 module gitlab.com/timtoobias-projects/timtoobias-api
 
-go 1.14
+go 1.15
 
 require (
-	github.com/hector-lachambre/huzlive-api v0.0.0-20190513165312-d61e19745524
+	github.com/smartystreets/goconvey v1.6.4 // indirect
 	gopkg.in/ini.v1 v1.62.0
 )

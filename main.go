@@ -59,8 +59,8 @@ func main() {
 	}
 
 	application.updateStreamDatas(client)
-	application.updateYoutubeDatas(client, YT_HuzId_main, true)
-	application.updateYoutubeDatas(client, YT_HuzId_second, false)
+	application.updateYoutubeDatas(client, YoutubeMainChannelID, true)
+	application.updateYoutubeDatas(client, YoutubeSecondaryChannelID, false)
 
 	http.HandleFunc("/datas", application.provideDatas)
 
@@ -80,8 +80,8 @@ func (a *Application) provideDatas(w http.ResponseWriter, r *http.Request) {
 
 	if time.Since(a.Cache.VideosContainer.DateSync).Seconds() > 30*60 {
 
-		a.updateYoutubeDatas(client, YT_HuzId_main, true)
-		a.updateYoutubeDatas(client, YT_HuzId_second, false)
+		a.updateYoutubeDatas(client, YoutubeMainChannelID, true)
+		a.updateYoutubeDatas(client, YoutubeMainChannelID, false)
 	}
 
 	output, err := json.Marshal(a.Cache)
