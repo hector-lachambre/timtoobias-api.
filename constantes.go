@@ -17,6 +17,11 @@
 
 package main
 
-const YT_HuzId_main = "UClTaTsOdHo6UNSCYAPN1YNQ"
-const YT_HuzId_second = "UC0pREpRaQjcC71d_4Db40iQ"
-const Twitch_HuzId = "42428057"
+// YoutubeMainChannelID is the main youtube channel identifier
+const YoutubeMainChannelID = "UClTaTsOdHo6UNSCYAPN1YNQ"
+
+// YoutubeSecondaryChannelID is the secondary youtube channel identifier
+const YoutubeSecondaryChannelID = "UC0pREpRaQjcC71d_4Db40iQ"
+
+// TwitchChannelID is the twitch channel identifier
+const TwitchChannelID = "42428057"
