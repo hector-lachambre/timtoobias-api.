@@ -39,8 +39,8 @@ func main() {
 	}
 
 	application.updateStreamDatas(client)
-	application.updateYoutubeDatas(client, YT_HuzId_main, true)
-	application.updateYoutubeDatas(client, YT_HuzId_second, false)
+	application.updateYoutubeDatas(client, YoutubeMainChannelID, true)
+	application.updateYoutubeDatas(client, YoutubeSecondaryChannelID, false)
 
 	http.HandleFunc("/datas", application.provideDatas)
 

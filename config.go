@@ -26,10 +26,12 @@ import (
 	"gopkg.in/ini.v1"
 )
 
+// Config datas representation
 type Config struct {
-	Mode       string
-	YoutubeKey string
-	TwitchKey  string
+	Mode         string
+	YoutubeKey   string
+	TwitchClient string
+	TwitchSecret string
 }
 
 type ConfigurationError struct {
@@ -64,8 +66,9 @@ func ReadConfig(filename string) (*Config, error) {
 	}
 
 	return &Config{
-		Mode:       cfg.Section("GENERAL").Key("Mode").String(),
-		YoutubeKey: cfg.Section("API").Key("YT_key").String(),
-		TwitchKey:  cfg.Section("API").Key("Twitch_key").String(),
+		Mode:         cfg.Section("GENERAL").Key("Mode").String(),
+		YoutubeKey:   cfg.Section("API").Key("YT_key").String(),
+		TwitchClient: cfg.Section("API").Key("Twitch_client").String(),
+		TwitchSecret: cfg.Section("API").Key("Twitch_secret").String(),
 	}, nil
 }
