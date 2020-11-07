@@ -21,28 +21,29 @@ package main
 import (
 	"log"
 	"net/http"
+
+	"gitlab.com/timtoobias-projects/timtoobias-api/controllers"
+	"gitlab.com/timtoobias-projects/timtoobias-datas/configuration"
+	"gitlab.com/timtoobias-projects/timtoobias-datas/repositories"
 )
 
 func main() {
 
-	client := http.Client{}
+	configurationManager := &configuration.CredentialsManager{}
+	client := &http.Client{}
 
-	config, err := ReadConfig("config.ini")
-
-	if err != nil {
-		log.Fatalln(err.Error())
+	controller := &controllers.LiveNotifierController{
+		TwitchRepository: &repositories.TwitchRepository{
+			CM:     configurationManager,
+			Client: client,
+		},
+		YoutubeRepository: &repositories.YoutubeRepository{
+			CM:     configurationManager,
+			Client: client,
+		},
 	}
 
-	application := &Application{
-		Cache:  &Cache{},
-		Config: config,
-	}
-
-	application.updateStreamDatas(client)
-	application.updateYoutubeDatas(client, YoutubeMainChannelID, true)
-	application.updateYoutubeDatas(client, YoutubeSecondaryChannelID, false)
-
-	http.HandleFunc("/datas", application.provideDatas)
+	http.HandleFunc("/datas", controller.Get)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
